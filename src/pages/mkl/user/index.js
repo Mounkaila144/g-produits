@@ -59,6 +59,11 @@ import DialogActions from "@mui/material/DialogActions";
 import Error500 from "../../500";
 import Spinner from "../../../@core/components/spinner";
 import Alert from "@mui/material/Alert";
+import Add from "../../../components/users/add";
+import Edit from "../../../components/users/edit";
+import EditModal from "../../../components/users/edit";
+import ViewModal from "../../../components/users/view";
+import Fab from "@mui/material/Fab";
 
 
 const StyledLink = styled(Link)(({theme}) => ({
@@ -81,140 +86,57 @@ const renderClient = row => {
   }
 }
 
-const RowOptions = ({id}) => {
-  // ** Hooks
-  const dispatch = useDispatch()
-
-  // ** State
-  const [anchorEl, setAnchorEl] = useState(null)
-  const rowOptionsOpen = Boolean(anchorEl)
-
-  const handleRowOptionsClick = event => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleDelete = () => {
-    dispatch(deleteUser(id))
-    handleRowOptionsClose()
-  }
-
-  return (
-    <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <Icon icon='mdi:dots-vertical'/>
-      </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        PaperProps={{style: {minWidth: '8rem'}}}
-      >
-        <MenuItem
-          component={Link}
-          sx={{'& svg': {mr: 2}}}
-          onClick={handleRowOptionsClose}
-          href='/apps/user/view/overview/'
-        >
-          <Icon icon='mdi:eye-outline' fontSize={20}/>
-          View
-        </MenuItem>
-        <MenuItem onClick={handleRowOptionsClose} sx={{'& svg': {mr: 2}}}>
-          <Icon icon='mdi:pencil-outline' fontSize={20}/>
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{'& svg': {mr: 2}}}>
-          <Icon icon='mdi:delete-outline' fontSize={20}/>
-          Delete
-        </MenuItem>
-      </Menu>
-    </>
-  )
-}
-
-const columns = [
-  {
-    flex: 0.2,
-    minWidth: 230,
-    field: 'name',
-    headerName: t('User'),
-    renderCell: ({row}) => {
-      const {name, email} = row
-
-      return (
-        <Box sx={{display: 'flex', alignItems: 'center'}}>
-          {renderClient(row)}
-          <Box sx={{display: 'flex', alignItems: 'flex-start', flexDirection: 'column'}}>
-            <StyledLink href='/apps/user/view/overview/'>{name}</StyledLink>
-            <Typography noWrap variant='caption'>
-              {`${email}`}
-            </Typography>
-          </Box>
-        </Box>
-      )
-    }
-  },
-  {
-    flex: 0.2,
-    minWidth: 250,
-    field: 'email',
-    headerName: t('email'),
-    renderCell: ({row}) => {
-      return (
-        <Typography noWrap variant='body2'>
-          {row.email}
-        </Typography>
-      )
-    }
-  },
-  {
-    flex: 0.15,
-    field: 'role',
-    minWidth: 150,
-    headerName: t('role'),
-    renderCell: ({row}) => {
-      return (
-        <Box sx={{display: 'flex', alignItems: 'center', '& svg': {mr: 3, color: red[500]}}}>
-          <Typography noWrap sx={{color: 'text.secondary', textTransform: 'capitalize'}}>
-            {t(row.role)}
-          </Typography>
-        </Box>
-      )
-    }
-  },
-  {
-    flex: 0.1,
-    minWidth: 90,
-    sortable: false,
-    field: 'actions',
-    headerName: t('action'),
-    renderCell: ({row}) => <RowOptions id={row.id}/>
-  }
-]
-
 const UserList = () => {
   // ** State
+  const [openadd, setOpenadd] = useState(false)
+  const [openedit, setOpenedit] = useState(false)
+  const [openview, setOpenview] = useState(false)
   const [roleFilter, setRoleFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
   const [addUserOpen, setAddUserOpen] = useState(false)
   const [data, setData] = useState([]);
+  const [dataUser, setDataUser] = useState([]);
   const [searchValue, setSearchValue] = useState('')
-  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [success, setSuccess] = useState(false); // New state variable for success message
+  const [selected, setSelected] = useState([]);
 
 
+  //DETED
+  const SubmitremoveAll = () => {
+    var data=Object.values(selected);
+
+    setLoading(true)
+    MyRequest('users/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+      .then(async (response) => {
+        if (response.status === 200) {
+          setSuccess(true)
+          await refreshData()
+        } else {
+          setError(true)
+        }
+      }).finally(() => setLoading(false))
+      .catch(error => {
+        setError(true)
+      });
+  };
+
+  const refreshData = () => {
+    router.push({pathname: router.pathname, query: {refresh: Date.now()}});
+  }
+  useEffect(() => {
+    if (success) {
+      const timeout = setTimeout(() => {
+        setSuccess(false);
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [success]);
+
+  //filtre
   const handleSearchChange = event => {
     const value = event.target.value;
     setSearchValue(value);
@@ -235,6 +157,10 @@ const UserList = () => {
     setRoleFilter(value);
   };
 
+  useEffect(() => {
+    const filteredData = filterData(originalData, searchValue, roleFilter);
+    setData(filteredData);
+  }, [searchValue, roleFilter, originalData]);
 
   const router = useRouter();
   useEffect(() => {
@@ -248,99 +174,179 @@ const UserList = () => {
     fetchData();
   }, [router.query]);
 
-  useEffect(() => {
-    const filteredData = filterData(originalData, searchValue, roleFilter);
-    setData(filteredData);
-  }, [searchValue, roleFilter, originalData]);
+  //fin
 
-
+  //traduction
   const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
   const {t, i18n} = useTranslation()
 
-
-  const [name, createName] = useState('')
-  const [password, createPassword] = useState('')
-  const [email, createEmail] = useState('')
-  const [role, createRole] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-  const [errorForm, setErrorForm] = useState(false)
-  const [errorText, setErrorText] = useState("une eureur c'est produits ")
-  const [success, setSuccess] = useState(false); // New state variable for success message
-
+  //fin
+//removeone
 
   useEffect(() => {
-    if (success) {
-      const timeout = setTimeout(() => {
-        setSuccess(false);
-      }, 20000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [success]);
-
-  const refreshData = () => {
-    router.push({pathname: router.pathname, query: {refresh: Date.now()}});
-  }
+    console.log(selected);
+  }, [selected]);
 
 
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '' || password.trim() === '') {
-      setErrorForm(true);
 
-      return;
-    }
+  const columns = [
+    {
+      flex: 0.2,
+      minWidth: 230,
+      field: 'name',
+      headerName: t('User'),
+      renderCell: ({ row }) => {
+        const { name, email } = row;
 
-    const formData = {
-      "name": name,
-      "password": password,
-      "role": role,
-      "email": email
-    }
-    try {
-      setLoading(true)
-      MyRequest('register', 'POST', formData, {'Content-Type': 'application/json'})
-        .then(async (response) => {
-          if (response.status === 200) {
-            await refreshData()
-            {
-              success &&
-              createEmail('')
-              createName('')
-              createRole('')
-              createPassword('')
-            }
-            await refreshData()
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderClient(row)}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+              <StyledLink href='/apps/user/view/overview/'>{name}</StyledLink>
+              <Typography noWrap variant='caption'>
+                {`${email}`}
+              </Typography>
+            </Box>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'email',
+      headerName: t('email'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.email}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      field: 'role',
+      minWidth: 150,
+      headerName: t('role'),
+      renderCell: ({ row }) => {
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: red[500] } }}>
+            <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+              {t(row.role)}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.1,
+      minWidth: 90,
+      sortable: false,
+      field: 'actions',
+      headerName: t('action'),
+      renderCell: ({ row }) => {
+        const [anchorEl, setAnchorEl] = useState(null);
+        const rowOptionsOpen = Boolean(anchorEl);
 
-            setSuccess(true)
-            setErrorForm(false)
+        const handleRowOptionsClick = (event) => {
+          setAnchorEl(event.currentTarget);
+        };
 
-          } else {
-            setError(true)
-          }
-        }).finally(() => setLoading(false))
-        .catch(error => {
-          setErrorText("une eureur c'est produits ");
-        });
+        const handleRowOptionsClose = () => {
+          setAnchorEl(null);
+        };
 
-    } catch (e) {
-      setError(true)
-    }
+        const handleEdit = (user) => {
+          // Set the user data to be edited
+          setDataUser(user);
+          setOpenedit(true);
+          handleRowOptionsClose();
+        };
 
-  }
-  if (loading) {
-    return (
-      <Spinner sx={{height: '100%'}}/>
-    )
-  } else if (error) {
-    return (<Error500/>)
-  } else {
-    return (
+const handleView = (user) => {
+          // Set the user data to be edited
+          setDataUser(user);
+          setOpenview(true);
+        };
+
+        const Submitremove = () => {
+          var data=Object.values([row.id]);
+
+          setLoading(true)
+          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+            .then(async (response) => {
+              if (response.status === 200) {
+                await refreshData()
+                setSuccess(true)
+
+              } else {
+                setError(true)
+              }
+            }).finally(() =>{
+        setLoading(false)
+
+            })
+            .catch(error => {
+              setError(true)
+            });
+          handleRowOptionsClose();
+        };
+
+
+        return (
+          <>
+            <IconButton size='small' onClick={handleRowOptionsClick}>
+              <Icon icon='mdi:dots-vertical' />
+            </IconButton>
+            <Menu
+              keepMounted
+              anchorEl={anchorEl}
+              open={rowOptionsOpen}
+              onClose={handleRowOptionsClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              PaperProps={{ style: { minWidth: '8rem' } }}
+            >
+              <MenuItem
+                sx={{ '& svg': { mr: 2 } }}
+                onClick={() => handleView(row)}
+              >
+                <Icon icon='mdi:eye-outline' fontSize={20} />
+                View
+              </MenuItem>
+              <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
+                <Icon icon='mdi:pencil-outline' fontSize={20} />
+                Edit
+              </MenuItem>
+              <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
+                <Icon icon='mdi:delete-outline' fontSize={20} />
+                Delete
+              </MenuItem>
+            </Menu>
+          </>
+        );
+      },
+    },
+  ];
+
+  return (
+    loading ? (
+        <Spinner sx={{ height: '100%' }} />
+      ) : error ? (
+        <Error500 />
+      ) : (
       <Grid container spacing={6}>
+
         <Grid item xs={12}>
           <Card>
-
+            {/*filtre et post*/}
             <Box sx={{
               p: 5,
               pb: 3,
@@ -349,7 +355,18 @@ const UserList = () => {
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
+              {success && (
+                <Alert variant='filled' severity='success'>
+                  Delect succefull
+                </Alert>
+              )}
+              {selected.length > 0 && <Fab  aria-label='delect selelcted' color='error' size='medium'
+                                                  onClick={SubmitremoveAll}
+              >
+                <Icon icon='ic:baseline-delete' fontSize={30} />
+              </Fab>}
               <Box sx={{display: 'flex', alignItems: 'center', marginRight: 6, marginBottom: 2}}>
+
                 <TextField
                   size='small'
                   value={searchValue}
@@ -357,6 +374,7 @@ const UserList = () => {
                   onChange={handleSearchChange}
                   sx={{flex: 1}}
                 />
+
               </Box>
               <Box sx={{display: 'flex', alignItems: 'center'}}>
                 <TextField
@@ -371,105 +389,44 @@ const UserList = () => {
                   <MenuItem value={t('admin')}>{t('admins')}</MenuItem>
                   <MenuItem value={t('client')}>{t('clients')}</MenuItem>
                 </TextField>
-                <Button variant='outlined' onClick={() => setOpen(true)}>
+                <Button variant='outlined' onClick={() => setOpenadd(true)}>
                   {t('to add')}
                 </Button>
-                <Dialog maxWidth={'sm'} open={open} onClose={() => setOpen(false)} aria-labelledby='form-dialog-title'>
-                  <DialogTitle id='form-dialog-title' sx={{textAlign: 'center'}}>Add user</DialogTitle>
-                  {success && (
-                    <Alert variant='filled' severity='success'>
-                      l'utilisateur a bien ete cree
-                    </Alert>
-                  )}
-                  {errorForm && (
-                    <Alert variant='filled' severity='error'>
-                      {errorText}
-                    </Alert>
-                  )
 
-                  }
-                  <DialogContent>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} lg={6}>
-                        <TextField
-                          label="Name"
-                          variant="outlined"
-                          fullWidth
-                          value={name}
-                          onChange={(e) => createName(e.target.value)}
-                          error={errorForm && name.trim() === ''}
-                          helperText={errorForm && name.trim() === '' ? 'Name is required' : ''}
-                        />
-                      </Grid>
-                      <Grid item xs={12} lg={6}>
-                        <TextField
-                          select
-                          label="Role"
-                          variant="outlined"
-                          fullWidth
-                          value={role}
-                          onChange={(e) => createRole(e.target.value)}
-                          error={errorForm && role === ''}
-                          helperText={errorForm && role === '' ? 'Role is required' : ''}
-                        >
-                          <MenuItem value="admin">Admin</MenuItem>
-                          <MenuItem value="client">Client</MenuItem>
-                        </TextField>
-                      </Grid>
-                      <Grid item xs={12} lg={6}>
-                        <TextField
-                          label="Email"
-                          variant="outlined"
-                          fullWidth
-                          value={email}
-                          onChange={(e) => createEmail(e.target.value)}
-                          error={errorForm && email.trim() === ''}
-                          helperText={errorForm && email.trim() === '' ? 'Email is required' : ''}
-                        />
-                      </Grid>
-                      <Grid item xs={12} lg={6}>
-                        <TextField
-                          label="Password"
-                          variant="outlined"
-                          type="password"
-                          fullWidth
-                          value={password}
-                          onChange={(e) => createPassword(e.target.value)}
-                          error={errorForm && password.trim() === ''}
-                          helperText={errorForm && password.trim() === '' ? 'Password is required' : ''}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <DialogActions className='dialog-actions-dense'>
-                          <Button onClick={onSubmit}>Envoyer</Button>
-                        </DialogActions>
-                      </Grid>
-                    </Grid>
-                  </DialogContent>
 
-                </Dialog>
+
+
+
               </Box>
             </Box>
-
+            {/*liste*/}
             <DataGrid
               autoHeight
               rows={data}
               columns={columns}
-              checkboxSelection
               pageSize={pageSize}
+              rowsPerPageOptions={[5,10, 25, 50]}
+              checkboxSelection
               disableSelectionOnClick
-              rowsPerPageOptions={[10, 25, 50]}
-              sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 0}}}
+              onSelectionModelChange={(ids) => {
+                setSelected(ids);
+              }}
+              selectionModel={selected}
+              sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 1}}}
               onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             />
 
           </Card>
         </Grid>
+        {/*add new*/}
+        <Add open={openadd} setOpen={setOpenadd}/>
+        {/* Edit user modal */}
+        <EditModal open={openedit} setOpen={setOpenedit} data={dataUser} />
+         {/* View user modal */}
+        <ViewModal open={openview} setOpen={setOpenview} data={dataUser} />
 
-        <AddUserDrawer open={addUserOpen} toggle={toggleAddUserDrawer}/>
-      </Grid>
+      </Grid>)
     )
-  }
 }
 
 export default UserList
