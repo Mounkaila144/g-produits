@@ -13,6 +13,18 @@ const withTM = require('next-transpile-modules')([
 ])
 
 module.exports = withTM({
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        // hostname: 'allcine.ptr-niger.com',
+        hostname: '127.0.0.1',
+        port:'8000',
+        pathname: '/storage/**',
+      },
+    ],
+  },
+
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {

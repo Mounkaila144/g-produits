@@ -8,11 +8,14 @@ import MenuItem from "@mui/material/MenuItem";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import MyRequest from "../../@core/components/request";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Spinner from "../../@core/components/spinner";
 import Error500 from "../../pages/500";
 import {useRouter} from "next/router";
 import {useTranslation} from "react-i18next";
+import { useDropzone } from 'react-dropzone';
+import FileUploaderSingle from "./upload";
+import {UploadImage} from "../uploadImage/uploadImage";
 
 
 const Add = ({open,setOpen}) => {
@@ -20,16 +23,37 @@ const Add = ({open,setOpen}) => {
 
 
   //create new post
+  const [image, createimage] = useState([])
   const [name, createName] = useState('')
-  const [password, createPassword] = useState('')
-  const [email, createEmail] = useState('')
-  const [role, createRole] = useState('')
+  const [price, createPrice] = useState('')
+  const [stock, createStock] = useState('')
+  const [suplier, createSuplier] = useState('')
+
+  const [categorie, createCategorie] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [errorForm, setErrorForm] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
+  const [dataCategorie, setDataCategorie] = useState([]);
+  const [dataSuplier, setDataSuplier] = useState([]);
+
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      await MyRequest('categories', 'GET', {}, {'Content-Type': 'application/json'})
+        .then((response) => {
+          setDataCategorie(response.data)
+        });
+       await MyRequest('supliers', 'GET', {}, {'Content-Type': 'application/json'})
+        .then((response) => {
+          setDataSuplier(response.data)
+        });
+
+    };
+
+    fetchData();
+  }, [router.query]);
 
   useEffect(() => {
     if (success) {
@@ -47,32 +71,36 @@ const Add = ({open,setOpen}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '' || password.trim() === '') {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price);
+    formData.append('categorie', categorie);
+    formData.append('suplier', suplier);
+    formData.append('stock', stock);
+    formData.append('picture', image);
+
+    if (name.trim() === '' || categorie === '' || stock.trim() === '' || price.trim() === '') {
       setErrorForm(true);
 
       return;
     }else{
       setErrorForm(false);
 
-    const formData = {
-      "name": name,
-      "password": password,
-      "role": role,
-      "email": email
-    }
     try {
       setLoading(true)
-      MyRequest('register', 'POST', formData, {'Content-Type': 'application/json'})
+      MyRequest('products', 'POST', formData, {'Content-Type': 'multipart/form-data'})
         .then(async (response) => {
           if (response.status === 200) {
             setSuccess(true)
 
             {
               success &&
-              createEmail('')
+              createStock('')
               createName('')
-              createRole('')
-              createPassword('')
+              createSuplier('')
+              createCategorie('')
+              createPrice('')
+              createimage([])
             }
             await refreshData()
 
@@ -95,7 +123,12 @@ const Add = ({open,setOpen}) => {
   const {t, i18n} = useTranslation()
 
   //fin
-    return (
+  const getImage = (image) => {
+    // 👇️ take parameter passed from Child component
+    createimage(image);
+  };
+
+  return (
 
       <Dialog
         maxWidth={'sm'}
@@ -140,40 +173,66 @@ const Add = ({open,setOpen}) => {
                 <Grid item xs={12} lg={6}>
                   <TextField
                     select
-                    label={t("role")}
+                    label={t("categorie")}
                     variant="outlined"
                     fullWidth
-                    value={role}
-                    onChange={(e) => createRole(e.target.value)}
-                    error={errorForm && role === ''}
-                    helperText={errorForm && role === '' ? t('is required') : ''}
+                    value={categorie}
+                    onChange={(e) => createCategorie(e.target.value)}
+                    error={errorForm && categorie === ''}
+                    helperText={errorForm && categorie === '' ? t('is required') : ''}
                   >
-                    <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
-                    <MenuItem value={t("client")}>{t("client")}</MenuItem>
+                    {dataCategorie.map((category) => (
+                      <MenuItem key={category.id} value={category.id}>
+                        {category.name}
+                      </MenuItem>
+                    ))}
                   </TextField>
                 </Grid>
                 <Grid item xs={12} lg={6}>
                   <TextField
-                    label={t("email")}
+                    select
+                    label={t("suplier")}
                     variant="outlined"
                     fullWidth
-                    value={email}
-                    onChange={(e) => createEmail(e.target.value)}
-                    error={errorForm && email.trim() === ''}
-                    helperText={errorForm && email.trim() === '' ? t('is required') : ''}
+                    value={suplier}
+                    onChange={(e) => createSuplier(e.target.value)}
+                    error={errorForm && suplier === ''}
+                    helperText={errorForm && suplier === '' ? t('is required') : ''}
+                  >
+                    {dataSuplier.map((suplier) => (
+                      <MenuItem key={suplier.id} value={suplier.id}>
+                        {suplier.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+
+                <Grid item xs={12} lg={6}>
+                  <TextField
+                    label={t("stock")}
+                    variant="outlined"
+                    fullWidth
+                    value={stock}
+                    onChange={(e) => createStock(e.target.value)}
+                    error={errorForm && stock.trim() === ''}
+                    helperText={errorForm && stock.trim() === '' ? t('is required') : ''}
                   />
                 </Grid>
                 <Grid item xs={12} lg={6}>
                   <TextField
-                    label={t("password")}
+                    label={t("price")}
                     variant="outlined"
-                    type="password"
+                    type="price"
                     fullWidth
-                    value={password}
-                    onChange={(e) => createPassword(e.target.value)}
-                    error={errorForm && password.trim() === ''}
-                    helperText={errorForm && password.trim() === '' ? t('is required') : ''}
+                    value={price}
+                    onChange={(e) => createPrice(e.target.value)}
+                    error={errorForm && price.trim() === ''}
+                    helperText={errorForm && price.trim() === '' ? t('is required') : ''}
                   />
+                </Grid>
+                <Grid item xs={12} lg={12}>
+                  <UploadImage image={getImage}/>
                 </Grid>
                 <Grid item xs={12}>
                   <DialogActions className='dialog-actions-dense'>

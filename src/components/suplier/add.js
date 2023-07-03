@@ -21,9 +21,8 @@ const Add = ({open,setOpen}) => {
 
   //create new post
   const [name, createName] = useState('')
-  const [password, createPassword] = useState('')
-  const [email, createEmail] = useState('')
-  const [role, createRole] = useState('')
+  const [phone, createPhone] = useState('')
+  const [adresse, createAdresse] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [errorForm, setErrorForm] = useState(false)
@@ -47,7 +46,7 @@ const Add = ({open,setOpen}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '' || password.trim() === '') {
+    if (name.trim() === '' || adresse === '' || phone.trim() === '') {
       setErrorForm(true);
 
       return;
@@ -56,23 +55,21 @@ const Add = ({open,setOpen}) => {
 
     const formData = {
       "name": name,
-      "password": password,
-      "role": role,
-      "email": email
+      "phone": phone,
+      "adresse": adresse
     }
     try {
       setLoading(true)
-      MyRequest('register', 'POST', formData, {'Content-Type': 'application/json'})
+      MyRequest('supliers', 'POST', formData, {'Content-Type': 'application/json'})
         .then(async (response) => {
           if (response.status === 200) {
             setSuccess(true)
 
             {
               success &&
-              createEmail('')
+              createAdresse('')
               createName('')
-              createRole('')
-              createPassword('')
+              createPhone('')
             }
             await refreshData()
 
@@ -139,41 +136,27 @@ const Add = ({open,setOpen}) => {
                 </Grid>
                 <Grid item xs={12} lg={6}>
                   <TextField
-                    select
-                    label={t("role")}
+                    label={t("phone")}
                     variant="outlined"
                     fullWidth
-                    value={role}
-                    onChange={(e) => createRole(e.target.value)}
-                    error={errorForm && role === ''}
-                    helperText={errorForm && role === '' ? t('is required') : ''}
+                    value={phone}
+                    onChange={(e) => createPhone(e.target.value)}
+                    error={errorForm && phone === ''}
+                    helperText={errorForm && phone === '' ? t('is required') : ''}
                   >
-                    <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
-                    <MenuItem value={t("client")}>{t("client")}</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} lg={6}>
                   <TextField
-                    label={t("email")}
+                    label={t("adresse")}
                     variant="outlined"
                     fullWidth
-                    value={email}
-                    onChange={(e) => createEmail(e.target.value)}
-                    error={errorForm && email.trim() === ''}
-                    helperText={errorForm && email.trim() === '' ? t('is required') : ''}
-                  />
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  <TextField
-                    label={t("password")}
-                    variant="outlined"
-                    type="password"
-                    fullWidth
-                    value={password}
-                    onChange={(e) => createPassword(e.target.value)}
-                    error={errorForm && password.trim() === ''}
-                    helperText={errorForm && password.trim() === '' ? t('is required') : ''}
-                  />
+                    value={adresse}
+                    onChange={(e) => createAdresse(e.target.value)}
+                    error={errorForm && adresse === ''}
+                    helperText={errorForm && adresse === '' ? t('is required') : ''}
+                  >
+                  </TextField>
                 </Grid>
                 <Grid item xs={12}>
                   <DialogActions className='dialog-actions-dense'>

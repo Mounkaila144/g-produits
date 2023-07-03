@@ -17,7 +17,7 @@ const salesData = [
   {
     stats: '8,458',
     color: 'primary',
-    title: 'Customers',
+    title: 'User',
     icon: <Icon icon='mdi:account-outline' />
   },
   {
@@ -52,26 +52,21 @@ const renderStats = () => {
   ))
 }
 
-const EcommerceSalesOverview = () => {
+const EcommerceSalesOverview = ({user,suplier,product}) => {
   return (
     <Card>
       <CardHeader
         sx={{ pb: 3.25 }}
-        title='Sales Overview'
+        title='Total Content'
         titleTypographyProps={{ variant: 'h6' }}
-        action={
-          <OptionsMenu
-            options={['Last 28 Days', 'Last Month', 'Last Year']}
-            iconButtonProps={{ size: 'small', className: 'card-more-options' }}
-          />
-        }
+
         subheader={
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
             <Typography variant='caption' sx={{ mr: 1.5 }}>
-              Total 42.5k Sales
+              Total of all content in application
             </Typography>
             <Typography variant='subtitle2' sx={{ color: 'success.main' }}>
-              +18%
+              100%
             </Typography>
             <Icon icon='mdi:chevron-up' fontSize={20} />
           </Box>
@@ -79,7 +74,47 @@ const EcommerceSalesOverview = () => {
       />
       <CardContent>
         <Grid container spacing={6}>
-          {renderStats()}
+          <Grid item xs={12} sm={4} >
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <CustomAvatar skin='light' variant='rounded' color={'primary'} sx={{ mr: 4 }}>
+                <Icon icon='mdi:account-outline' />
+              </CustomAvatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='h6' sx={{ fontWeight: 600 }}>
+                  {user}
+                </Typography>
+                <Typography variant='caption'>Categorie</Typography>
+              </Box>
+            </Box>
+          </Grid>
+           <Grid item xs={12} sm={4} >
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <CustomAvatar skin='light' variant='rounded' color={'warning'} sx={{ mr: 4 }}>
+                <Icon icon='raphael:users' />
+              </CustomAvatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='h6' sx={{ fontWeight: 600 }}>
+                  {suplier}
+                </Typography>
+                <Typography variant='caption'>Orders</Typography>
+              </Box>
+            </Box>
+          </Grid>
+           <Grid item xs={12} sm={4} >
+            <Box  sx={{ display: 'flex', alignItems: 'center' }}>
+              <CustomAvatar skin='light' variant='rounded' color={'info'} sx={{ mr: 4 }}>
+                <Icon icon='fluent-mdl2:product-list' />
+              </CustomAvatar>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography variant='h6' sx={{ fontWeight: 600 }}>
+                  {product}
+                </Typography>
+                <Typography variant='caption'>products</Typography>
+              </Box>
+            </Box>
+          </Grid>
+
+
         </Grid>
       </CardContent>
     </Card>

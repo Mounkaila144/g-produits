@@ -32,7 +32,7 @@ const data = {
           id: 'users-license',
           question: 'Which license do I need for an end product that is only accessible to paying users?',
           answer:
-            'If you have paying users or you are developing any SaaS products then you need an Extended License. For each products, you need a license. You can get free lifetime updates as well.'
+            'If you have paying users or you are developing any SaaS product then you need an Extended License. For each product, you need a license. You can get free lifetime updates as well.'
         },
         {
           id: 'subscription-review',
@@ -54,7 +54,7 @@ const data = {
           id: 'ship-order',
           question: 'How would you ship my order?',
           answer:
-            'For large products, we deliver your product via a third party logistics company offering you the “room of choice” scheduled delivery service. For small products, we offer free parcel delivery.'
+            'For large product, we deliver your product via a third party logistics company offering you the “room of choice” scheduled delivery service. For small product, we offer free parcel delivery.'
         },
         {
           id: 'delivery-cost',
@@ -142,7 +142,7 @@ const data = {
           id: 'warranty-notification',
           question: 'Where can I find warranty information?',
           answer:
-            'We are committed to quality products. For information on warranty period and warranty services, visit our Warranty section here.'
+            'We are committed to quality product. For information on warranty period and warranty services, visit our Warranty section here.'
         },
         {
           id: 'warranty-coverage',

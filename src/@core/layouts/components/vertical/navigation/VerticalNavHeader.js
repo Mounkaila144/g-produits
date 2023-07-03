@@ -12,6 +12,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import {useTranslation} from "react-i18next";
 
 // ** Styled Components
 const MenuHeaderWrapper = styled(Box)(({ theme }) => ({
@@ -106,6 +107,7 @@ const VerticalNavHeader = props => {
       }
     }
   }
+  const {t, i18n} = useTranslation()
 
   return (
     <MenuHeaderWrapper className='nav-header' sx={{ pl: menuHeaderPaddingLeft() }}>
@@ -184,7 +186,7 @@ const VerticalNavHeader = props => {
             </defs>
           </svg>
           <HeaderTitle variant='h6' sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2 }) }}>
-            {themeConfig.templateName}
+            {t(themeConfig.templateName)}
           </HeaderTitle>
         </StyledLink>
       )}

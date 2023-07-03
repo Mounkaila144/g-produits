@@ -109,19 +109,19 @@ const data = {
               slug: 'how-to-update-payment-method',
               title: 'How to update payment method?',
               content:
-                "<p>You can add a payment method to your account or update your account's existing payment method at any time.</p> <p>You can pay with a credit card or with a PayPal account. When you update your payment method for your account's subscription, your new payment method is automatically added to your other subscriptions for paid products.</p><p>You can add a payment method to your account or update your account's existing payment method at any time.</p> <p>You can pay with a credit card or with a PayPal account. When you update your payment method for your account's subscription, your new payment method is automatically added to your other subscriptions for paid products.</p>"
+                "<p>You can add a payment method to your account or update your account's existing payment method at any time.</p> <p>You can pay with a credit card or with a PayPal account. When you update your payment method for your account's subscription, your new payment method is automatically added to your other subscriptions for paid product.</p><p>You can add a payment method to your account or update your account's existing payment method at any time.</p> <p>You can pay with a credit card or with a PayPal account. When you update your payment method for your account's subscription, your new payment method is automatically added to your other subscriptions for paid product.</p>"
             },
             {
               slug: 'how-to-check-billing-date',
               title: 'How to check billing date?',
               content:
-                "<p>You can view your account's subscription, your other paid features and products, and your next billing date in your account's billing settings.</p><p>You can view your account's subscription, your other paid features and products, and your next billing date in your account's billing settings.</p>"
+                "<p>You can view your account's subscription, your other paid features and product, and your next billing date in your account's billing settings.</p><p>You can view your account's subscription, your other paid features and product, and your next billing date in your account's billing settings.</p>"
             },
             {
               slug: 'how-to-change-billing-cycle',
               title: 'How to change billing cycle?',
               content:
-                "<p>You can change your billing cycle from the account settings billing section.</p> <p>When you change your billing cycle's duration, your GitHub subscription, along with any other paid features and products, will be moved to your new billing cycle on your next billing date.</p><p>You can change your billing cycle from the account settings billing section.</p> <p>When you change your billing cycle's duration, your GitHub subscription, along with any other paid features and products, will be moved to your new billing cycle on your next billing date.</p>"
+                "<p>You can change your billing cycle from the account settings billing section.</p> <p>When you change your billing cycle's duration, your GitHub subscription, along with any other paid features and product, will be moved to your new billing cycle on your next billing date.</p><p>You can change your billing cycle from the account settings billing section.</p> <p>When you change your billing cycle's duration, your GitHub subscription, along with any other paid features and product, will be moved to your new billing cycle on your next billing date.</p>"
             },
             {
               slug: 'where-can-i-view-and-download-payment-receipt',

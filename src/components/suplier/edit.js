@@ -17,11 +17,12 @@ import {useTranslation} from "react-i18next";
 
 const EditModal = ({open,setOpen,data}) => {
 
+  console.log(data)
 
   //edit new post
   const [name, editName] = useState(data.name);
-  const [email, editEmail] = useState(data.email);
-  const [role, editRole] = useState(data.role);
+  const [phone, editPhone] = useState(data.phone);
+  const [adresse, editAdresse] = useState(data.adresse);
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
@@ -31,8 +32,8 @@ const EditModal = ({open,setOpen,data}) => {
 
   useEffect(() => {
     editName(data.name);
-    editEmail(data.email);
-    editRole(data.role);
+    editPhone(data.phone);
+    editAdresse(data.adresse);
   }, [data,success]);
 
 
@@ -52,7 +53,7 @@ const EditModal = ({open,setOpen,data}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '') {
+    if (name.trim() === '' || adresse === '' || phone.trim() === '') {
       setErrorForm(true);
 
       return;
@@ -61,12 +62,12 @@ const EditModal = ({open,setOpen,data}) => {
 
       const formData = {
         "name": name,
-        "role": role,
-        "email": email
+        "adresse": adresse,
+        "phone": phone
       }
       try {
         setLoading(true)
-        MyRequest('users/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
+        MyRequest('supliers/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
           .then(async (response) => {
             if (response.status === 200) {
               setSuccess(true)
@@ -74,7 +75,7 @@ const EditModal = ({open,setOpen,data}) => {
               await refreshData()
 
               setErrorForm(false)
-              setOpen(false)
+setOpen(false)
             } else {
               setError(true)
             }
@@ -106,7 +107,7 @@ const EditModal = ({open,setOpen,data}) => {
       ) : (
         <>
           <DialogTitle id='form-dialog-title' sx={{ textAlign: 'center' }}>
-            Edit
+            {t('edit')}
           </DialogTitle>
           {success && (
             <Alert variant='filled' severity='success'>
@@ -134,28 +135,24 @@ const EditModal = ({open,setOpen,data}) => {
               </Grid>
               <Grid item xs={12} lg={6}>
                 <TextField
-                  select
-                  label={t("role")}
+                  label={t("phone")}
                   variant="outlined"
                   fullWidth
-                  value={role}
-                  onChange={(e) => editRole(e.target.value)}
-                  error={errorForm && role === ''}
-                  helperText={errorForm && role === '' ? t('is required') : ''}
-                >
-                  <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
-                  <MenuItem value={t("client")}>{t("client")}</MenuItem>
-                </TextField>
+                  value={phone}
+                  onChange={(e) => editPhone(e.target.value)}
+                  error={errorForm && phone.trim() === ''}
+                  helperText={errorForm && phone.trim() === '' ? t('is required') : ''}
+                />
               </Grid>
               <Grid item xs={12} lg={6}>
                 <TextField
-                  label={t("email")}
+                  label={t("adresse")}
                   variant="outlined"
                   fullWidth
-                  value={email}
-                  onChange={(e) => editEmail(e.target.value)}
-                  error={errorForm && email.trim() === ''}
-                  helperText={errorForm && email.trim() === '' ? t('is required') : ''}
+                  value={adresse}
+                  onChange={(e) => editAdresse(e.target.value)}
+                  error={errorForm && adresse.trim() === ''}
+                  helperText={errorForm && adresse.trim() === '' ? t('is required') : ''}
                 />
               </Grid>
               <Grid item xs={12}>

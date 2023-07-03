@@ -19,7 +19,7 @@ const data = [
     meta: 'Free',
     value: 'updates',
     title: 'Updates',
-    content: 'Get Updates regarding related products.'
+    content: 'Get Updates regarding related product.'
   }
 ]
 

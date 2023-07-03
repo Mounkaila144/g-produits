@@ -39,11 +39,9 @@ import {getInitials} from 'src/@core/utils/get-initials'
 // ** Actions Imports
 
 // ** Third Party Components
-import axios from 'axios'
 
 // ** Custom Table Components Imports
-import TableHeader from 'src/views/apps/user/list/TableHeader'
-import AddUserDrawer from 'src/views/apps/user/list/AddUserDrawer'
+
 import themeConfig from "../../../configs/themeConfig";
 import {red} from "@mui/material/colors";
 import MyRequest from "../../../@core/components/request";
@@ -59,11 +57,11 @@ import DialogActions from "@mui/material/DialogActions";
 import Error500 from "../../500";
 import Spinner from "../../../@core/components/spinner";
 import Alert from "@mui/material/Alert";
-import Add from "../../../components/users/add";
-import Edit from "../../../components/users/edit";
-import EditModal from "../../../components/users/edit";
-import ViewModal from "../../../components/users/view";
+
 import Fab from "@mui/material/Fab";
+import Add from "../../../components/suplier/add";
+import EditModal from "../../../components/suplier/edit";
+import ViewModal from "../../../components/suplier/view";
 
 
 const StyledLink = styled(Link)(({theme}) => ({
@@ -79,24 +77,21 @@ const StyledLink = styled(Link)(({theme}) => ({
 
 // ** renders client column
 const renderClient = row => {
-  if (row.role === "admin") {
-    return <CustomAvatar src={"/images/avatars/3.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  } else {
-    return <CustomAvatar src={"/images/avatars/1.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  }
+
+
+    return <CustomAvatar src={"/images/avatars/7.png"} sx={{mr: 3, width: 34, height: 34}}/>
 }
 
-const UserList = () => {
+const SuplierList = () => {
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
   const [openview, setOpenview] = useState(false)
-  const [roleFilter, setRoleFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
-  const [addUserOpen, setAddUserOpen] = useState(false)
+  const [addSuplierOpen, setAddSuplierOpen] = useState(false)
   const [data, setData] = useState([]);
-  const [dataUser, setDataUser] = useState([]);
+  const [dataSuplier, setDataSuplier] = useState([]);
   const [searchValue, setSearchValue] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -109,7 +104,7 @@ const UserList = () => {
     var data=Object.values(selected);
 
     setLoading(true)
-    MyRequest('users/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+    MyRequest('supliers/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
       .then(async (response) => {
         if (response.status === 200) {
           setSuccess(true)
@@ -140,32 +135,16 @@ const UserList = () => {
   const handleSearchChange = event => {
     const value = event.target.value;
     setSearchValue(value);
-    const filteredData = filterData(originalData, value, roleFilter);
+    const filteredData = filterData(originalData, value);
     setData(filteredData);
   };
 
-  const filterData = (data, searchVal, roleVal) => {
-    return data.filter(user =>
-      user.name.toLowerCase().includes(searchVal.toLowerCase()) &&
-      (roleVal === '' || user.role.toLowerCase() === roleVal.toLowerCase())
-    );
-  };
 
-
-  const handleRoleFilterChange = event => {
-    const value = event.target.value;
-    setRoleFilter(value);
-  };
-
-  useEffect(() => {
-    const filteredData = filterData(originalData, searchValue, roleFilter);
-    setData(filteredData);
-  }, [searchValue, roleFilter, originalData]);
 
   const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
-      await MyRequest('users', 'GET', {}, {'Content-Type': 'application/json'})
+      await MyRequest('supliers', 'GET', {}, {'Content-Type': 'application/json'})
         .then((response) => {
           setOriginalData(response.data);
           setData(response.data)
@@ -177,7 +156,7 @@ const UserList = () => {
   //fin
 
   //traduction
-  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
+  const toggleAddSuplierDrawer = () => setAddSuplierOpen(!addSuplierOpen)
   const {t, i18n} = useTranslation()
 
   //fin
@@ -194,17 +173,18 @@ const UserList = () => {
       flex: 0.2,
       minWidth: 230,
       field: 'name',
-      headerName: t('User'),
+      headerName: t('Suplier'),
       renderCell: ({ row }) => {
-        const { name, email } = row;
+        const { name, phone } = row;
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
+             label="iOS Style"
+   {renderClient(row)}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <StyledLink href='/apps/user/view/overview/'>{name}</StyledLink>
+              <StyledLink href='/apps/suplier/view/overview/'>{name}</StyledLink>
               <Typography noWrap variant='caption'>
-                {`${email}`}
+                {`${phone}`}
               </Typography>
             </Box>
           </Box>
@@ -215,25 +195,25 @@ const UserList = () => {
       flex: 0.2,
       minWidth: 250,
       field: 'email',
-      headerName: t('email'),
+      headerName: t('phone'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.email}
+            {row.phone}
           </Typography>
         );
       },
     },
     {
       flex: 0.15,
-      field: 'role',
+      field: 'adresse',
       minWidth: 150,
-      headerName: t('role'),
+      headerName: t('adresse'),
       renderCell: ({ row }) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: red[500] } }}>
             <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-              {t(row.role)}
+              {t(row.adresse)}
             </Typography>
           </Box>
         );
@@ -247,6 +227,7 @@ const UserList = () => {
       headerName: t('action'),
       renderCell: ({ row }) => {
         const [anchorEl, setAnchorEl] = useState(null);
+
         const rowOptionsOpen = Boolean(anchorEl);
 
         const handleRowOptionsClick = (event) => {
@@ -257,16 +238,16 @@ const UserList = () => {
           setAnchorEl(null);
         };
 
-        const handleEdit = (user) => {
-          // Set the user data to be edited
-          setDataUser(user);
+        const handleEdit = (suplier) => {
+          // Set the suplier data to be edited
+          setDataSuplier(suplier);
           setOpenedit(true);
           handleRowOptionsClose();
         };
 
-const handleView = (user) => {
-          // Set the user data to be edited
-          setDataUser(user);
+const handleView = (suplier) => {
+          // Set the suplier data to be edited
+          setDataSuplier(suplier);
           setOpenview(true);
         };
 
@@ -274,7 +255,7 @@ const handleView = (user) => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('supliers/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 200) {
                 await refreshData()
@@ -319,15 +300,15 @@ const handleView = (user) => {
                 onClick={() => handleView(row)}
               >
                 <Icon icon='mdi:eye-outline' fontSize={20} />
-                View
+                {t('view')}
               </MenuItem>
               <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEdit(row)}>
                 <Icon icon='mdi:pencil-outline' fontSize={20} />
-                Edit
+                {t('edit')}
               </MenuItem>
               <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
                 <Icon icon='mdi:delete-outline' fontSize={20} />
-                Delete
+                {t('delete')}
               </MenuItem>
             </Menu>
           </>
@@ -377,25 +358,9 @@ const handleView = (user) => {
 
               </Box>
               <Box sx={{display: 'flex', alignItems: 'center'}}>
-                <TextField
-                  select
-                  size='small'
-                  value={roleFilter}
-                  onChange={handleRoleFilterChange}
-                  label={t("role")}
-                  sx={{minWidth: 150}}
-                >
-                  <MenuItem value=''>{t("all")}</MenuItem>
-                  <MenuItem value={t('admin')}>{t('admins')}</MenuItem>
-                  <MenuItem value={t('client')}>{t('clients')}</MenuItem>
-                </TextField>
                 <Button variant='outlined' onClick={() => setOpenadd(true)}>
                   {t('to add')}
                 </Button>
-
-
-
-
 
               </Box>
             </Box>
@@ -420,13 +385,13 @@ const handleView = (user) => {
         </Grid>
         {/*add new*/}
         <Add open={openadd} setOpen={setOpenadd}/>
-        {/* Edit user modal */}
-        <EditModal open={openedit} setOpen={setOpenedit} data={dataUser} />
-         {/* View user modal */}
-        <ViewModal open={openview} setOpen={setOpenview} data={dataUser} />
+        {/* Edit suplier modal */}
+        <EditModal open={openedit} setOpen={setOpenedit} data={dataSuplier} />
+         {/* View suplier modal */}
+        <ViewModal open={openview} setOpen={setOpenview} data={dataSuplier} />
 
       </Grid>)
     )
 }
 
-export default UserList
+export default SuplierList

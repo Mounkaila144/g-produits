@@ -31,15 +31,10 @@ const ViewModal = ({ open, setOpen, data }) => {
   };
 
   const renderClient = row => {
-    if (row.role === "admin") {
-      return <CustomAvatar src={"/images/avatars/3.png"} variant='rounded'
+      return <CustomAvatar src={"/images/avatars/7.png"} variant='rounded'
                            alt={data.fullName}
                            sx={{width: 120, height: 120, fontWeight: 600, mb: 4, fontSize: '3rem'}}/>
-    } else {
-      return <CustomAvatar src={"/images/avatars/1.png"} variant='rounded'
-                           alt={data.fullName}
-                           sx={{width: 120, height: 120, fontWeight: 600, mb: 4, fontSize: '3rem'}}/>
-    }
+
   }
   const {t, i18n} = useTranslation()
 
@@ -51,7 +46,7 @@ const ViewModal = ({ open, setOpen, data }) => {
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title" sx={{ textAlign: 'center' }}>{t('view')}</DialogTitle>
+        <DialogTitle id="form-dialog-title" sx={{ textAlign: 'center' }}>{t('view')} {t('Supplier')} </DialogTitle>
         <DialogContent>
           <Grid container spacing={6}>
             <Grid item xs={12}>
@@ -64,8 +59,8 @@ const ViewModal = ({ open, setOpen, data }) => {
                   <CustomChip
                     skin='light'
                     size='small'
-                    label={data.role}
-                    color={roleColors[data.role]}
+                    label={t('Supplier')}
+                    color={roleColors["admin"]}
                     sx={{
                       height: 20,
                       fontWeight: 600,
@@ -87,25 +82,14 @@ const ViewModal = ({ open, setOpen, data }) => {
                         <Typography variant='h6' sx={{lineHeight: 1.3}}>
                           305
                         </Typography>
-                        <Typography variant='body2'>Commande Done</Typography>
-                      </div>
-                    </Box>
-                    <Box sx={{display: 'flex', alignItems: 'center'}}>
-                      <CustomAvatar skin='light' variant='rounded' sx={{mr: 3}}>
-                        <Icon icon='line-md:remove'/>
-                      </CustomAvatar>
-                      <div>
-                        <Typography variant='h6' sx={{lineHeight: 1.3}}>
-                          568
-                        </Typography>
-                        <Typography variant='body2'>Commande not done</Typography>
+                        <Typography variant='body2'>Produits Acheter</Typography>
                       </div>
                     </Box>
                   </Box>
                 </CardContent>
 
                 <CardContent>
-                  <Typography variant='h6'>Details</Typography>
+                  <Typography variant='h6'>{t('Details')}</Typography>
                   <Divider sx={{mt: theme => `${theme.spacing(4)} !important`}}/>
                   <Box sx={{pt: 2, pb: 1}}>
                     <Box sx={{display: 'flex', mb: 2.7}}>
@@ -116,16 +100,9 @@ const ViewModal = ({ open, setOpen, data }) => {
                     </Box>
                     <Box sx={{display: 'flex', mb: 2.7}}>
                       <Typography variant='subtitle2' sx={{mr: 2, color: 'text.primary'}}>
-                        {t('email')}:
+                        {t('phone')}:
                       </Typography>
-                      <Typography variant='body2'>{data.email}</Typography>
-                    </Box>
-
-                    <Box sx={{display: 'flex', mb: 2.7}}>
-                      <Typography sx={{mr: 2, fontWeight: 500, fontSize: '0.875rem'}}>{t('role')}:</Typography>
-                      <Typography variant='body2' sx={{textTransform: 'capitalize'}}>
-                        {data.role}
-                      </Typography>
+                      <Typography variant='body2'>{data.phone}</Typography>
                     </Box>
                     <Box sx={{display: 'flex'}}>
                       <Typography sx={{mr: 2, fontWeight: 500, fontSize: '0.875rem'}}>{t('created at')}:</Typography>

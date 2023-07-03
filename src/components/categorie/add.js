@@ -21,9 +21,6 @@ const Add = ({open,setOpen}) => {
 
   //create new post
   const [name, createName] = useState('')
-  const [password, createPassword] = useState('')
-  const [email, createEmail] = useState('')
-  const [role, createRole] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [errorForm, setErrorForm] = useState(false)
@@ -47,7 +44,7 @@ const Add = ({open,setOpen}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '' || password.trim() === '') {
+    if (name.trim() === '') {
       setErrorForm(true);
 
       return;
@@ -55,24 +52,18 @@ const Add = ({open,setOpen}) => {
       setErrorForm(false);
 
     const formData = {
-      "name": name,
-      "password": password,
-      "role": role,
-      "email": email
+      "name": name
     }
     try {
       setLoading(true)
-      MyRequest('register', 'POST', formData, {'Content-Type': 'application/json'})
+      MyRequest('categories', 'POST', formData, {'Content-Type': 'application/json'})
         .then(async (response) => {
           if (response.status === 200) {
             setSuccess(true)
 
             {
               success &&
-              createEmail('')
               createName('')
-              createRole('')
-              createPassword('')
             }
             await refreshData()
 
@@ -126,7 +117,7 @@ const Add = ({open,setOpen}) => {
             }
             <DialogContent>
               <Grid container spacing={2}>
-                <Grid item xs={12} lg={6}>
+                <Grid item xs={12} lg={12}>
                   <TextField
                     label={t("name")}
                     variant="outlined"
@@ -135,44 +126,6 @@ const Add = ({open,setOpen}) => {
                     onChange={(e) => createName(e.target.value)}
                     error={errorForm && name.trim() === ''}
                     helperText={errorForm && name.trim() === '' ? t('is required') : ''}
-                  />
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  <TextField
-                    select
-                    label={t("role")}
-                    variant="outlined"
-                    fullWidth
-                    value={role}
-                    onChange={(e) => createRole(e.target.value)}
-                    error={errorForm && role === ''}
-                    helperText={errorForm && role === '' ? t('is required') : ''}
-                  >
-                    <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
-                    <MenuItem value={t("client")}>{t("client")}</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  <TextField
-                    label={t("email")}
-                    variant="outlined"
-                    fullWidth
-                    value={email}
-                    onChange={(e) => createEmail(e.target.value)}
-                    error={errorForm && email.trim() === ''}
-                    helperText={errorForm && email.trim() === '' ? t('is required') : ''}
-                  />
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                  <TextField
-                    label={t("password")}
-                    variant="outlined"
-                    type="password"
-                    fullWidth
-                    value={password}
-                    onChange={(e) => createPassword(e.target.value)}
-                    error={errorForm && password.trim() === ''}
-                    helperText={errorForm && password.trim() === '' ? t('is required') : ''}
                   />
                 </Grid>
                 <Grid item xs={12}>

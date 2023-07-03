@@ -367,7 +367,7 @@ const data = {
       client: 'Hulda Wright',
       title: 'Create Website',
       avatar: '/images/icons/project-icons/html-label.png',
-      description: 'Your domain name should reflect your products or services so that your...',
+      description: 'Your domain name should reflect your product or services so that your...',
       avatarGroup: [
         { avatar: '/images/avatars/2.png', name: 'Andrew Tye' },
         { avatar: '/images/avatars/3.png', name: 'Rishi Swaat' },

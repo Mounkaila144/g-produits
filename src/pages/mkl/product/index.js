@@ -1,5 +1,5 @@
 // ** React Imports
-import {useState, useEffect, useCallback} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -59,11 +59,11 @@ import DialogActions from "@mui/material/DialogActions";
 import Error500 from "../../500";
 import Spinner from "../../../@core/components/spinner";
 import Alert from "@mui/material/Alert";
-import Add from "../../../components/users/add";
-import Edit from "../../../components/users/edit";
-import EditModal from "../../../components/users/edit";
-import ViewModal from "../../../components/users/view";
+import Add from "../../../components/product/add";
+import EditModal from "../../../components/product/edit";
+import ViewModal from "../../../components/product/view";
 import Fab from "@mui/material/Fab";
+import Image from "next/image";
 
 
 const StyledLink = styled(Link)(({theme}) => ({
@@ -87,11 +87,14 @@ const renderClient = row => {
 }
 
 const UserList = () => {
+  const router = useRouter();
+
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
   const [openview, setOpenview] = useState(false)
-  const [roleFilter, setRoleFilter] = useState('');
+  const [categorieFilter, setCategorieFilter] = useState('');
+  const [suplierFilter, setSupplierFilter] = useState('');
   const [originalData, setOriginalData] = useState([])
   const [pageSize, setPageSize] = useState(10)
   const [addUserOpen, setAddUserOpen] = useState(false)
@@ -102,14 +105,30 @@ const UserList = () => {
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
   const [selected, setSelected] = useState([]);
+  const [dataCategorie, setDataCategorie] = useState([]);
+  const [dataSuplier, setDataSuplier] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      await MyRequest('categories', 'GET', {}, {'Content-Type': 'application/json'})
+        .then((response) => {
+          setDataCategorie(response.data)
+        });
+await MyRequest('supliers', 'GET', {}, {'Content-Type': 'application/json'})
+        .then((response) => {
+          setDataSuplier(response.data)
+        });
 
+    };
 
-  //DETED
+    fetchData();
+  }, [router.query]);
+console.log(dataUser)
+
   const SubmitremoveAll = () => {
     var data=Object.values(selected);
 
     setLoading(true)
-    MyRequest('users/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+    MyRequest('products/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
       .then(async (response) => {
         if (response.status === 200) {
           setSuccess(true)
@@ -123,49 +142,42 @@ const UserList = () => {
       });
   };
 
-  const refreshData = () => {
-    router.push({pathname: router.pathname, query: {refresh: Date.now()}});
-  }
-  useEffect(() => {
-    if (success) {
-      const timeout = setTimeout(() => {
-        setSuccess(false);
-      }, 5000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [success]);
-
   //filtre
   const handleSearchChange = event => {
     const value = event.target.value;
     setSearchValue(value);
-    const filteredData = filterData(originalData, value, roleFilter);
+    const filteredData = filterData(originalData, value, categorieFilter, suplierFilter);
     setData(filteredData);
   };
 
-  const filterData = (data, searchVal, roleVal) => {
-    return data.filter(user =>
-      user.name.toLowerCase().includes(searchVal.toLowerCase()) &&
-      (roleVal === '' || user.role.toLowerCase() === roleVal.toLowerCase())
+
+  const filterData = (data, searchVal, roleVal, suplierVal) => {
+    return data.filter(product =>
+      product.name.toLowerCase().includes(searchVal.toLowerCase()) &&
+      (roleVal === '' || product.categorie.id === roleVal) &&
+      (suplierVal === '' || product.suplier.id === suplierVal)
     );
   };
 
 
-  const handleRoleFilterChange = event => {
+
+  const handleCategorieFilterChange = event => {
     const value = event.target.value;
-    setRoleFilter(value);
+    setCategorieFilter(value);
+  };
+  const handleSupplierFilterChange = event => {
+    const value = event.target.value;
+    setSupplierFilter(value);
   };
 
   useEffect(() => {
-    const filteredData = filterData(originalData, searchValue, roleFilter);
+    const filteredData = filterData(originalData, searchValue, categorieFilter, suplierFilter);
     setData(filteredData);
-  }, [searchValue, roleFilter, originalData]);
+  }, [searchValue, categorieFilter, suplierFilter, originalData]);
 
-  const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
-      await MyRequest('users', 'GET', {}, {'Content-Type': 'application/json'})
+      await MyRequest('products', 'GET', {}, {'Content-Type': 'application/json'})
         .then((response) => {
           setOriginalData(response.data);
           setData(response.data)
@@ -174,66 +186,102 @@ const UserList = () => {
     fetchData();
   }, [router.query]);
 
-  //fin
-
-  //traduction
-  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
-  const {t, i18n} = useTranslation()
-
-  //fin
-//removeone
-
-  useEffect(() => {
-    console.log(selected);
-  }, [selected]);
-
-
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const columns = [
+
     {
       flex: 0.2,
-      minWidth: 230,
-      field: 'name',
-      headerName: t('User'),
+      minWidth: 250,
+      field: 'picture',
+      headerName: t('picture'),
       renderCell: ({ row }) => {
-        const { name, email } = row;
-
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderClient(row)}
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-              <StyledLink href='/apps/user/view/overview/'>{name}</StyledLink>
-              <Typography noWrap variant='caption'>
-                {`${email}`}
-              </Typography>
-            </Box>
-          </Box>
+          <Image
+            src={'http://127.0.0.1:8000' + "/storage/product/" + row.picture}
+            width={70} height={70}
+            alt={"image"}/>
         );
       },
     },
     {
       flex: 0.2,
       minWidth: 250,
-      field: 'email',
-      headerName: t('email'),
+      field: 'name',
+      headerName: t('name'),
       renderCell: ({ row }) => {
         return (
           <Typography noWrap variant='body2'>
-            {row.email}
+            {row.name}
+          </Typography>
+        );
+      },
+    },
+
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'categorie',
+      headerName: t('categorie'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.categorie.name}
+          </Typography>
+        );
+      },
+    },
+
+
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'price',
+      headerName: t('price'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.price}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'Supplier',
+      headerName: t('suplier'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.suplier.name}
+          </Typography>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'quantity sell',
+      headerName: t('quantity sell'),
+      renderCell: ({ row }) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row.vendue}
           </Typography>
         );
       },
     },
     {
       flex: 0.15,
-      field: 'role',
+      field: 'quantity',
       minWidth: 150,
-      headerName: t('role'),
+      headerName: t('quantity'),
       renderCell: ({ row }) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: red[500] } }}>
             <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-              {t(row.role)}
+              {t(row.stock)}
             </Typography>
           </Box>
         );
@@ -246,7 +294,7 @@ const UserList = () => {
       field: 'actions',
       headerName: t('action'),
       renderCell: ({ row }) => {
-        const [anchorEl, setAnchorEl] = useState(null);
+
         const rowOptionsOpen = Boolean(anchorEl);
 
         const handleRowOptionsClick = (event) => {
@@ -257,7 +305,7 @@ const UserList = () => {
           setAnchorEl(null);
         };
 
-        const handleEdit = (user) => {
+        const handleEdit= (user) => {
           // Set the user data to be edited
           setDataUser(user);
           setOpenedit(true);
@@ -274,7 +322,7 @@ const handleView = (user) => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('users/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('products/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 200) {
                 await refreshData()
@@ -380,16 +428,37 @@ const handleView = (user) => {
                 <TextField
                   select
                   size='small'
-                  value={roleFilter}
-                  onChange={handleRoleFilterChange}
-                  label={t("role")}
-                  sx={{minWidth: 150}}
+                  value={suplierFilter}
+                  onChange={handleSupplierFilterChange}
+                  label={t("suplier")}
+                  sx={{minWidth: 150, marginRight: 3}}
                 >
                   <MenuItem value=''>{t("all")}</MenuItem>
-                  <MenuItem value={t('admin')}>{t('admins')}</MenuItem>
-                  <MenuItem value={t('client')}>{t('clients')}</MenuItem>
+                  {/* Remplacez `dataSuppliers` par votre liste de fournisseurs */}
+                  {dataSuplier.map((suplier) => (
+                    <MenuItem key={suplier.id} value={suplier.id}>
+                      {suplier.name}
+                    </MenuItem>
+                  ))}
                 </TextField>
-                <Button variant='outlined' onClick={() => setOpenadd(true)}>
+
+                <TextField
+                  select
+                  size='small'
+                  value={categorieFilter}
+                  onChange={handleCategorieFilterChange}
+                  label={t("categorie")}
+                  sx={{minWidth: 150,marginRight:3}}
+                >
+                  <MenuItem value=''>{t("all")}</MenuItem>
+                  {dataCategorie.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <Button variant='contained' onClick={() => setOpenadd(true)}>
                   {t('to add')}
                 </Button>
 

@@ -19,7 +19,7 @@ const data = [
     meta: 'Free',
     value: 'updates',
     title: 'Updates',
-    content: 'Get Updates regarding related products.'
+    content: 'Get Updates regarding related product.'
   }
 ]
 
@@ -55,7 +55,7 @@ const BasicCustomCheckbox = () => {
 }
 
 export default BasicCustomCheckbox
-`}</code></pre>) 
+`}</code></pre>)
 
 export const CustomCheckboxImgJSXCode = (<pre className='language-jsx'><code className='language-jsx'>{`// ** React Imports
 import { useState } from 'react'
@@ -114,7 +114,7 @@ const CustomCheckboxWithImages = () => {
 }
 
 export default CustomCheckboxWithImages
-`}</code></pre>) 
+`}</code></pre>)
 
 export const CustomCheckboxIconsJSXCode = (<pre className='language-jsx'><code className='language-jsx'>{`// ** React Imports
 import { useState } from 'react'
@@ -184,7 +184,7 @@ const CustomCheckboxWithIcons = () => {
 }
 
 export default CustomCheckboxWithIcons
-`}</code></pre>) 
+`}</code></pre>)
 
 export const CustomRadioBasicJSXCode = (<pre className='language-jsx'><code className='language-jsx'>{`// ** React Imports
 import { useState } from 'react'
@@ -242,7 +242,7 @@ const BasicCustomRadio = () => {
 }
 
 export default BasicCustomRadio
-`}</code></pre>) 
+`}</code></pre>)
 
 export const CustomRadioImgJSXCode = (<pre className='language-jsx'><code className='language-jsx'>{`// ** React Imports
 import { useState } from 'react'
@@ -300,7 +300,7 @@ const CustomRadioWithImages = () => {
 }
 
 export default CustomRadioWithImages
-`}</code></pre>) 
+`}</code></pre>)
 
 export const CustomRadioIconsJSXCode = (<pre className='language-jsx'><code className='language-jsx'>{`// ** React Imports
 import { useState } from 'react'
@@ -369,5 +369,5 @@ const CustomRadioWithIcons = () => {
 }
 
 export default CustomRadioWithIcons
-`}</code></pre>) 
+`}</code></pre>)
 

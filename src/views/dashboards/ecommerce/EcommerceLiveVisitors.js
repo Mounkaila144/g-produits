@@ -21,7 +21,7 @@ const series = [
   }
 ]
 
-const EcommerceLiveVisitors = () => {
+const EcommerceLiveVisitors = ({data}) => {
   // ** Hook
   const theme = useTheme()
 
@@ -73,22 +73,20 @@ const EcommerceLiveVisitors = () => {
   return (
     <Card>
       <CardHeader
-        title='Live Visitors'
-        subheader='Total 890 Visitors Are Live'
+        title='Orders'
         titleTypographyProps={{ variant: 'h6' }}
         subheaderTypographyProps={{ variant: 'caption' }}
         sx={{ '& .MuiCardHeader-subheader': { fontSize: '0.75rem' } }}
-        action={
-          <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
-            <Typography variant='body2' sx={{ color: 'success.main' }}>
-              +78.2%
-            </Typography>
-            <Icon icon='mdi:chevron-up' />
-          </Box>
-        }
+
       />
       <CardContent>
-        <ReactApexcharts type='bar' height={148} options={options} series={series} />
+        <Typography variant='body2' sx={{ color: 'success.main' }}>
+          Commandes Allow {data.TotalOrderTrue}
+        </Typography>
+        <Typography variant='body2' sx={{ color: 'error.main' }}>
+          Commandes Not Allow {data.TotalOrderFalse}
+        </Typography>
+        <ReactApexcharts type='bar' height={120} options={options} series={series} />
       </CardContent>
     </Card>
   )

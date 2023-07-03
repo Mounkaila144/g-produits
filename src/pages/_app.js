@@ -56,6 +56,7 @@ import 'src/iconify-bundle/icons-bundle-react'
 
 // ** Global css styles
 import '../../styles/globals.css'
+import {CartProvider} from "react-use-cart";
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -118,7 +119,9 @@ const App = props => {
                     <WindowWrapper>
                       <Guard authGuard={authGuard} guestGuard={guestGuard}>
                         <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
+                          <CartProvider>
                           {getLayout(<Component {...pageProps} />)}
+                          </CartProvider>
                         </AclGuard>
                       </Guard>
                     </WindowWrapper>

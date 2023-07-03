@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-const EcommerceImpressionsOrders = () => {
+const EcommerceImpressionsOrders = ({noAlert,alert}) => {
   return (
     <Card>
       <CardContent sx={{ py: theme => `${theme.spacing(6.625)} !important` }}>
@@ -28,7 +28,7 @@ const EcommerceImpressionsOrders = () => {
             />
             <CircularProgress
               size={60}
-              value={65}
+              value={95}
               thickness={5}
               color='primary'
               variant='determinate'
@@ -50,17 +50,14 @@ const EcommerceImpressionsOrders = () => {
           </Box>
           <div>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Typography variant='h6' sx={{ mr: 1.75 }}>
-                84k
+              <Typography variant='h6' sx={{ mr: 1.75, color: 'sucess.main' }}>
+                {noAlert}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'error.main' } }}>
-                <Typography variant='subtitle2' sx={{ color: 'error.main' }}>
-                  -24%
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'sucess.main' } }}>
                 <Icon icon='mdi:chevron-down' fontSize='1.25rem' />
               </Box>
             </Box>
-            <Typography variant='body2'>Total Impressions</Typography>
+            <Typography variant='body2'>products with no alert stock</Typography>
           </div>
         </Box>
       </CardContent>
@@ -82,28 +79,25 @@ const EcommerceImpressionsOrders = () => {
             <CircularProgress
               size={60}
               thickness={5}
-              value={35}
+              value={5}
               color='warning'
               variant='determinate'
               sx={{ '& .MuiCircularProgress-circle': { strokeWidth: 4, strokeLinecap: 'round' } }}
             />
-            <Box sx={{ mt: -3, ml: -2.5, position: 'absolute', top: '50%', left: '50%', color: 'warning.main' }}>
+            <Box sx={{ mt: -3, ml: -2.5, position: 'absolute', top: '50%', left: '50%', color: 'error.main' }}>
               <Icon icon='mdi:shopping-outline' fontSize={20} />
             </Box>
           </Box>
           <div>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Typography variant='h6' sx={{ mr: 1.75 }}>
-                22k
+              <Typography variant='h6' sx={{ mr: 1.75,color: 'error.main' }}>
+                {alert}
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'success.main' } }}>
-                <Typography variant='subtitle2' sx={{ color: 'success.main' }}>
-                  +15%
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { color: 'erorr.main' } }}>
                 <Icon icon='mdi:chevron-up' fontSize='1.25rem' />
               </Box>
             </Box>
-            <Typography variant='body2'>Total Orders</Typography>
+            <Typography variant='body2'>products with alert stock</Typography>
           </div>
         </Box>
       </CardContent>

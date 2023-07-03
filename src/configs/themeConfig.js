@@ -7,7 +7,7 @@
 const themeConfig = {
   // ** Layout Configs
   url: 'http://127.0.0.1:8000/api/' /* Api endpoint */,
-  templateName: 'Gestions' /* App Name */,
+  templateName: 'Management' /* App Name */,
   layout: 'vertical' /* vertical | horizontal */,
   mode: 'dark' /* light | dark | semi-dark /*! Note: semi-dark value will only work for Vertical Layout */,
   direction: 'ltr' /* ltr | rtl */,

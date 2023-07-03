@@ -17,11 +17,10 @@ import {useTranslation} from "react-i18next";
 
 const EditModal = ({open,setOpen,data}) => {
 
+  console.log(data)
 
   //edit new post
   const [name, editName] = useState(data.name);
-  const [email, editEmail] = useState(data.email);
-  const [role, editRole] = useState(data.role);
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
@@ -31,8 +30,6 @@ const EditModal = ({open,setOpen,data}) => {
 
   useEffect(() => {
     editName(data.name);
-    editEmail(data.email);
-    editRole(data.role);
   }, [data,success]);
 
 
@@ -52,7 +49,7 @@ const EditModal = ({open,setOpen,data}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '' || role === '' || email.trim() === '') {
+    if (name.trim() === '') {
       setErrorForm(true);
 
       return;
@@ -60,13 +57,11 @@ const EditModal = ({open,setOpen,data}) => {
       setErrorForm(false);
 
       const formData = {
-        "name": name,
-        "role": role,
-        "email": email
+        "name": name
       }
       try {
         setLoading(true)
-        MyRequest('users/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
+        MyRequest('categories/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
           .then(async (response) => {
             if (response.status === 200) {
               setSuccess(true)
@@ -74,7 +69,7 @@ const EditModal = ({open,setOpen,data}) => {
               await refreshData()
 
               setErrorForm(false)
-              setOpen(false)
+setOpen(false)
             } else {
               setError(true)
             }
@@ -106,7 +101,7 @@ const EditModal = ({open,setOpen,data}) => {
       ) : (
         <>
           <DialogTitle id='form-dialog-title' sx={{ textAlign: 'center' }}>
-            Edit
+            {t('edit')}
           </DialogTitle>
           {success && (
             <Alert variant='filled' severity='success'>
@@ -121,7 +116,7 @@ const EditModal = ({open,setOpen,data}) => {
           }
           <DialogContent>
             <Grid container spacing={2}>
-              <Grid item xs={12} lg={6}>
+              <Grid item xs={12} lg={12}>
                 <TextField
                   label={t("name")}
                   variant="outlined"
@@ -130,32 +125,6 @@ const EditModal = ({open,setOpen,data}) => {
                   onChange={(e) => editName(e.target.value)}
                   error={errorForm && name.trim() === ''}
                   helperText={errorForm && name.trim() === '' ? t('is required') : ''}
-                />
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  select
-                  label={t("role")}
-                  variant="outlined"
-                  fullWidth
-                  value={role}
-                  onChange={(e) => editRole(e.target.value)}
-                  error={errorForm && role === ''}
-                  helperText={errorForm && role === '' ? t('is required') : ''}
-                >
-                  <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
-                  <MenuItem value={t("client")}>{t("client")}</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} lg={6}>
-                <TextField
-                  label={t("email")}
-                  variant="outlined"
-                  fullWidth
-                  value={email}
-                  onChange={(e) => editEmail(e.target.value)}
-                  error={errorForm && email.trim() === ''}
-                  helperText={errorForm && email.trim() === '' ? t('is required') : ''}
                 />
               </Grid>
               <Grid item xs={12}>
