@@ -130,6 +130,9 @@ const EditModal = ({open,setOpen,data}) => {
                   onChange={(e) => editName(e.target.value)}
                   error={errorForm && name.trim() === ''}
                   helperText={errorForm && name.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -142,6 +145,9 @@ const EditModal = ({open,setOpen,data}) => {
                   onChange={(e) => editRole(e.target.value)}
                   error={errorForm && role === ''}
                   helperText={errorForm && role === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 >
                   <MenuItem value={t("admin")}>{t("admin")}</MenuItem>
                   <MenuItem value={t("client")}>{t("client")}</MenuItem>
@@ -156,6 +162,9 @@ const EditModal = ({open,setOpen,data}) => {
                   onChange={(e) => editEmail(e.target.value)}
                   error={errorForm && email.trim() === ''}
                   helperText={errorForm && email.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>

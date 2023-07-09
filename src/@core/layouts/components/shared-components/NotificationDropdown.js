@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, Fragment } from 'react'
+import React, {useState, Fragment, useEffect} from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -24,6 +24,11 @@ import CustomAvatar from 'src/@core/components/mui/avatar'
 
 // ** Util Import
 import { getInitials } from 'src/@core/utils/get-initials'
+import MyRequest from "../../../components/request";
+import Spinner from "../../../components/spinner";
+import Error500 from "../../../../pages/500";
+import {useRouter} from "next/router";
+import Image from "next/image";
 
 // ** Styled Menu component
 const Menu = styled(MuiMenu)(({ theme }) => ({
@@ -108,7 +113,11 @@ const NotificationDropdown = props => {
   const handleDropdownClose = () => {
     setAnchorEl(null)
   }
+  const router = useRouter();
 
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
   const RenderAvatar = ({ notification }) => {
     const { avatarAlt, avatarImg, avatarIcon, avatarText, avatarColor } = notification
     if (avatarImg) {
@@ -127,8 +136,26 @@ const NotificationDropdown = props => {
       )
     }
   }
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await MyRequest('products', 'GET', {}, { 'Content-Type': 'application/json' });
+        setData(response.data);
+        setLoading(false);
+      } catch (error) {
+        setError(true);
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [router.query]);
   return (
+    loading ? (
+      <Spinner sx={{ height: '20%' }} />
+    ) : error ? (
+      <Error500 />
+    ) : (
     <Fragment>
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
         <Badge
@@ -138,7 +165,7 @@ const NotificationDropdown = props => {
           sx={{
             '& .MuiBadge-badge': { top: 4, right: 4, boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}` }
           }}
-        >
+        > <Typography variant="caption" color={"red"}>{data.length}</Typography>
           <Icon icon='mdi:bell-outline' />
         </Badge>
       </IconButton>
@@ -159,46 +186,43 @@ const NotificationDropdown = props => {
             <CustomChip
               skin='light'
               size='small'
-              color='primary'
-              label={`${notifications.length} New`}
+              color='error'
+              label={`${data.length} alert`}
               sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500, borderRadius: '10px' }}
             />
           </Box>
         </MenuItem>
         <ScrollWrapper hidden={hidden}>
-          {notifications.map((notification, index) => (
+          {data.map((notification, index) => (
             <MenuItem key={index} onClick={handleDropdownClose}>
               <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-                <RenderAvatar notification={notification} />
+                <Image
+                  src={'http://127.0.0.1:8000/storage/product/' + notification.picture}
+                  width={40}
+                  height={40}
+                  alt="image"
+                />
                 <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                  <MenuItemTitle>{notification.title}</MenuItemTitle>
-                  <MenuItemSubtitle variant='body2'>{notification.subtitle}</MenuItemSubtitle>
+                  <MenuItemTitle>N°</MenuItemTitle>
+                  <MenuItemSubtitle variant='body2'>{notification.id}</MenuItemSubtitle>
                 </Box>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                  {notification.meta}
-                </Typography>
+                 <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
+                  <MenuItemTitle>Name</MenuItemTitle>
+                  <MenuItemSubtitle variant='body2'>{notification.name}</MenuItemSubtitle>
+                </Box>
+                 <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
+                  <MenuItemTitle>Quantity</MenuItemTitle>
+                  <MenuItemSubtitle variant='body2'>{notification.stock}</MenuItemSubtitle>
+                </Box>
+
               </Box>
             </MenuItem>
           ))}
         </ScrollWrapper>
-        <MenuItem
-          disableRipple
-          disableTouchRipple
-          sx={{
-            py: 3.5,
-            borderBottom: 0,
-            cursor: 'default',
-            userSelect: 'auto',
-            backgroundColor: 'transparent !important',
-            borderTop: theme => `1px solid ${theme.palette.divider}`
-          }}
-        >
-          <Button fullWidth variant='contained' onClick={handleDropdownClose}>
-            Read All Notifications
-          </Button>
-        </MenuItem>
+
       </Menu>
     </Fragment>
+  )
   )
 }
 

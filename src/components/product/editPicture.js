@@ -8,60 +8,41 @@ import MenuItem from "@mui/material/MenuItem";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import MyRequest from "../../@core/components/request";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Spinner from "../../@core/components/spinner";
 import Error500 from "../../pages/500";
 import {useRouter} from "next/router";
 import {useTranslation} from "react-i18next";
+import { useDropzone } from 'react-dropzone';
+import FileUploaderSingle from "./upload";
+import {UploadImage} from "../uploadImage/uploadImage";
+import {useAuth} from "../../hooks/useAuth";
 
 
-const EditModal = ({open,setOpen,data}) => {
+const EditPicture= ({open,setOpen,data}) => {
 
-  console.log(data)
-
-  //edit new post
-  const [name, editName] = useState(data.name);
+  //create new post
+  const [image, createimage] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
+  const [errorForm, setErrorForm] = useState(false)
   const [success, setSuccess] = useState(false); // New state variable for success message
 
-  const [errorForm, setErrorForm] = useState(false)
   const router = useRouter();
 
-  useEffect(() => {
-    editName(data.name);
-  }, [data,success]);
-
-
-  useEffect(() => {
-    if (success) {
-      const timeout = setTimeout(() => {
-        setSuccess(false);
-      }, 20000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [success]);
 
   const refreshData = () => {
     router.push({pathname: router.pathname, query: {refresh: Date.now()}});
   }
-
+  const auth = useAuth()
+console.log(auth.user.id)
   const onSubmit = async (e) => {
     e.preventDefault()
-    if (name.trim() === '') {
-      setErrorForm(true);
-
-      return;
-    }else{
-      setErrorForm(false);
-
-      const formData = {
-        "name": name
-      }
+    const formData = new FormData();
+    formData.append('picture', image);
       try {
         setLoading(true)
-        MyRequest('categories/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
+        MyRequest(`products/${data.id}/picture`, 'POST', formData, {'Content-Type': 'multipart/form-data'})
           .then(async (response) => {
             if (response.status === 200) {
               setSuccess(true)
@@ -70,22 +51,28 @@ const EditModal = ({open,setOpen,data}) => {
               setOpen(false)
 
               setErrorForm(false)
-setOpen(false)
+
             } else {
               setError(true)
             }
           }).finally(() => setLoading(false))
           .catch(error => {
-            setError(true);
+            setError(true)
           });
 
       } catch (e) {
         setError(true)
       }
-    }
+
 
   }
   const {t, i18n} = useTranslation()
+
+  //fin
+  const getImage = (image) => {
+    // 👇️ take parameter passed from Child component
+    createimage(image);
+  };
 
   return (
 
@@ -102,31 +89,19 @@ setOpen(false)
       ) : (
         <>
           <DialogTitle id='form-dialog-title' sx={{ textAlign: 'center' }}>
-            {t('edit')}
+            {t('Edit picture')}
           </DialogTitle>
-          {success && (
-            <Alert variant='filled' severity='success'>
-              {t('success creation')}
-            </Alert>
-          )}
           {errorForm && (
-              <Alert variant='filled' severity='error'>
-                {t('an error occurred')}
-              </Alert>
-            )
+            <Alert variant='filled' severity='error'>
+              {t('an error occurred')}
+            </Alert>
+          )
+
           }
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item xs={12} lg={12}>
-                <TextField
-                  label={t("name")}
-                  variant="outlined"
-                  fullWidth
-                  value={name}
-                  onChange={(e) => editName(e.target.value)}
-                  error={errorForm && name.trim() === ''}
-                  helperText={errorForm && name.trim() === '' ? t('is required') : ''}
-                />
+                <UploadImage image={getImage}/>
               </Grid>
               <Grid item xs={12}>
                 <DialogActions className='dialog-actions-dense'>
@@ -141,4 +116,4 @@ setOpen(false)
   );
 };
 
-export default EditModal;
+export default EditPicture;

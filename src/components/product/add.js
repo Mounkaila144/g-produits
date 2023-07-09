@@ -27,6 +27,7 @@ const Add = ({open,setOpen}) => {
   const [name, createName] = useState('')
   const [price, createPrice] = useState('')
   const [stock, createStock] = useState('')
+  const [alert, createAlert] = useState('')
   const [suplier, createSuplier] = useState('')
 
   const [categorie, createCategorie] = useState('')
@@ -77,9 +78,10 @@ const Add = ({open,setOpen}) => {
     formData.append('categorie', categorie);
     formData.append('suplier', suplier);
     formData.append('stock', stock);
+    formData.append('alert', alert);
     formData.append('picture', image);
 
-    if (name.trim() === '' || categorie === '' || stock.trim() === '' || price.trim() === '') {
+    if (name.trim() === '' || categorie === '' || stock.trim() === '' ||alert.trim() === '' || price.trim() === '') {
       setErrorForm(true);
 
       return;
@@ -100,6 +102,7 @@ const Add = ({open,setOpen}) => {
               createSuplier('')
               createCategorie('')
               createPrice('')
+              createAlert('')
               createimage([])
             }
             await refreshData()
@@ -229,6 +232,18 @@ const Add = ({open,setOpen}) => {
                     onChange={(e) => createPrice(e.target.value)}
                     error={errorForm && price.trim() === ''}
                     helperText={errorForm && price.trim() === '' ? t('is required') : ''}
+                  />
+                </Grid>
+                <Grid item xs={12} lg={6}>
+                  <TextField
+                    label={t("alert")}
+                    variant="outlined"
+                    type="alert"
+                    fullWidth
+                    value={alert}
+                    onChange={(e) => createAlert(e.target.value)}
+                    error={errorForm && alert.trim() === ''}
+                    helperText={errorForm && alert.trim() === '' ? t('is required') : ''}
                   />
                 </Grid>
                 <Grid item xs={12} lg={12}>

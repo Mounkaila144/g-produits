@@ -16,9 +16,10 @@ import {useTranslation} from "react-i18next";
 import { useDropzone } from 'react-dropzone';
 import FileUploaderSingle from "./upload";
 import {UploadImage} from "../uploadImage/uploadImage";
+import {useAuth} from "../../hooks/useAuth";
 
 
-const Add = ({open,setOpen,data}) => {
+const EditModal = ({open,setOpen,data}) => {
 
 
   console.log(data)
@@ -28,6 +29,7 @@ console.log(data)
   const [name, createName] = useState(data.name)
   const [price, createPrice] = useState(data.price)
   const [stock, createStock] = useState(data.stock)
+  const [alert, createAlert] = useState(data.alert)
   const [suplier, createSuplier] = useState(data.suplier ? data.suplier.id : '')
   const [categorie, createCategorie] = useState(data.categorie ? data.categorie.id : '')
   const [loading, setLoading] = useState(false)
@@ -44,6 +46,7 @@ console.log(data)
     createName(data.name);
     createPrice(data.price);
     createStock(data.stock);
+    createAlert(data.alert);
     createSuplier(data.suplier ? data.suplier.id : '');
     createCategorie(data.categorie ? data.categorie.id : '');
 
@@ -80,17 +83,19 @@ console.log(data)
   const refreshData = () => {
     router.push({pathname: router.pathname, query: {refresh: Date.now()}});
   }
-
+  const auth = useAuth()
+console.log(auth.user.id)
   const onSubmit = async (e) => {
     e.preventDefault()
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('price', price);
-  formData.append('categorie', categorie.id);
-    formData.append('suplier', suplier.id);
-    formData.append('stock', stock);
-    !image.length===0&&formData.append('picture', image);
-
+    const formData = {
+      'name': name,
+      'price': price,
+      'categorie': categorie.id,
+      'suplier': suplier.id,
+      'stock': stock,
+      'alert': alert,
+      'user':auth.user.id
+    }
     if (name.trim() === '' || categorie === '' || String(stock).trim() === '' || String(price).trim() === '') {
       setErrorForm(true);
 
@@ -100,12 +105,13 @@ console.log(data)
 
       try {
         setLoading(true)
-        MyRequest('products/'+data.id, 'PUT', formData, {'Content-Type': 'multipart/form-data'})
+        MyRequest('products/'+data.id, 'PUT', formData, {'Content-Type': 'application/json'})
           .then(async (response) => {
             if (response.status === 200) {
               setSuccess(true)
 
               await refreshData()
+              setOpen(false)
 
               setErrorForm(false)
 
@@ -126,10 +132,6 @@ console.log(data)
   const {t, i18n} = useTranslation()
 
   //fin
-  const getImage = (image) => {
-    // 👇️ take parameter passed from Child component
-    createimage(image);
-  };
 
   return (
 
@@ -146,7 +148,7 @@ console.log(data)
       ) : (
         <>
           <DialogTitle id='form-dialog-title' sx={{ textAlign: 'center' }}>
-            {t('add')}
+            {t('edit')}
           </DialogTitle>
           {success && (
             <Alert variant='filled' severity='success'>
@@ -171,6 +173,9 @@ console.log(data)
                   onChange={(e) => createName(e.target.value)}
                   error={errorForm && name.trim() === ''}
                   helperText={errorForm && name.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -183,6 +188,9 @@ console.log(data)
                   onChange={(e) => createCategorie(e.target.value)}
                   error={errorForm && categorie === ''}
                   helperText={errorForm && categorie === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 >
                   {dataCategorie.map((category) => (
                     <MenuItem key={category.id} value={category.id}>
@@ -201,6 +209,9 @@ console.log(data)
                   onChange={(e) => createSuplier(e.target.value)}
                   error={errorForm && suplier === ''}
                   helperText={errorForm && suplier === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 >
                   {dataSuplier.map((suplier) => (
                     <MenuItem key={suplier.id} value={suplier.id}>
@@ -220,6 +231,9 @@ console.log(data)
                   onChange={(e) => createStock(e.target.value)}
                   error={errorForm && String(stock).trim() === ''}
                   helperText={errorForm && stock.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12} lg={6}>
@@ -232,10 +246,24 @@ console.log(data)
                   onChange={(e) => createPrice(e.target.value)}
                   error={errorForm && price.trim() === ''}
                   helperText={errorForm && price.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                 />
-              </Grid>
-              <Grid item xs={12} lg={12}>
-                <UploadImage image={getImage}/>
+              </Grid> <Grid item xs={12} lg={6}>
+                <TextField
+                  label={t("alert")}
+                  variant="outlined"
+                  type="number"
+                  fullWidth
+                  value={alert}
+                  onChange={(e) => createAlert(e.target.value)}
+                  error={errorForm && alert.trim() === ''}
+                  helperText={errorForm && alert.trim() === '' ? t('is required') : ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
               </Grid>
               <Grid item xs={12}>
                 <DialogActions className='dialog-actions-dense'>
@@ -250,4 +278,4 @@ console.log(data)
   );
 };
 
-export default Add;
+export default EditModal;

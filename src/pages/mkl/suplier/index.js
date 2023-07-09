@@ -179,8 +179,7 @@ const SuplierList = () => {
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-             label="iOS Style"
-   {renderClient(row)}
+            {renderClient(row)}
             <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
               <StyledLink href='/apps/suplier/view/overview/'>{name}</StyledLink>
               <Typography noWrap variant='caption'>

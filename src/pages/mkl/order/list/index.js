@@ -140,7 +140,7 @@ const Categorie = () => {
     var data=Object.values(selected);
 
     setLoading(true)
-    MyRequest('orders/1', 'DELETE', {'data':data,'user':auth.id}, {'Content-Type': 'application/json'})
+    MyRequest('orders/1', 'DELETE', {'data':data,'user':auth.user.id}, {'Content-Type': 'application/json'})
       .then(async (response) => {
         if (response.status === 200) {
           setSuccess(true)

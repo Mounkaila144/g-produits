@@ -137,7 +137,7 @@ const Categorie = () => {
         "state": state,
         "lastname": lastname,
         "data": items,
-        "user": auth.id
+        "user": auth.user.id
       }
       try {
         setLoading(true)

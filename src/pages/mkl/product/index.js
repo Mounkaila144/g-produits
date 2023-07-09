@@ -24,38 +24,13 @@ import Select from '@mui/material/Select'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Store Imports
-import {useDispatch, useSelector} from 'react-redux'
-import {useTranslation} from 'react-i18next'
 
-// ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import CustomAvatar from 'src/@core/components/mui/avatar'
-import CardStatisticsHorizontal from 'src/@core/components/card-statistics/card-stats-horizontal'
-
-// ** Utils Import
-import {getInitials} from 'src/@core/utils/get-initials'
-
-// ** Actions Imports
-
-// ** Third Party Components
-import axios from 'axios'
-
-// ** Custom Table Components Imports
-import TableHeader from 'src/views/apps/user/list/TableHeader'
-import AddUserDrawer from 'src/views/apps/user/list/AddUserDrawer'
-import themeConfig from "../../../configs/themeConfig";
 import {red} from "@mui/material/colors";
 import MyRequest from "../../../@core/components/request";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import {useRouter} from "next/router";
 import {t} from "i18next";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
 import Error500 from "../../500";
 import Spinner from "../../../@core/components/spinner";
 import Alert from "@mui/material/Alert";
@@ -64,27 +39,12 @@ import EditModal from "../../../components/product/edit";
 import ViewModal from "../../../components/product/view";
 import Fab from "@mui/material/Fab";
 import Image from "next/image";
+import {useAuth} from "../../../hooks/useAuth";
+import EditPicture from "../../../components/product/editPicture";
 
 
-const StyledLink = styled(Link)(({theme}) => ({
-  fontWeight: 600,
-  fontSize: '1rem',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  color: theme.palette.text.secondary,
-  '&:hover': {
-    color: theme.palette.primary.main
-  }
-}))
 
 // ** renders client column
-const renderClient = row => {
-  if (row.role === "admin") {
-    return <CustomAvatar src={"/images/avatars/3.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  } else {
-    return <CustomAvatar src={"/images/avatars/1.png"} sx={{mr: 3, width: 34, height: 34}}/>
-  }
-}
 
 const UserList = () => {
   const router = useRouter();
@@ -92,6 +52,7 @@ const UserList = () => {
   // ** State
   const [openadd, setOpenadd] = useState(false)
   const [openedit, setOpenedit] = useState(false)
+  const [openeditPiture, setOpeneditPiture] = useState(false)
   const [openview, setOpenview] = useState(false)
   const [categorieFilter, setCategorieFilter] = useState('');
   const [suplierFilter, setSupplierFilter] = useState('');
@@ -107,6 +68,10 @@ const UserList = () => {
   const [selected, setSelected] = useState([]);
   const [dataCategorie, setDataCategorie] = useState([]);
   const [dataSuplier, setDataSuplier] = useState([]);
+  const auth = useAuth()
+  const refreshData = () => {
+    router.push({pathname: router.pathname, query: {refresh: Date.now()}});
+  }
   useEffect(() => {
     const fetchData = async () => {
       await MyRequest('categories', 'GET', {}, {'Content-Type': 'application/json'})
@@ -128,18 +93,18 @@ console.log(dataUser)
     var data=Object.values(selected);
 
     setLoading(true)
-    MyRequest('products/1', 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+    MyRequest('products/1', 'DELETE', {'data':data,'user':auth.user.id}, {'Content-Type': 'application/json'})
       .then(async (response) => {
         if (response.status === 200) {
           setSuccess(true)
+          console.log('yesss')
           await refreshData()
+          setError(false)
         } else {
           setError(true)
         }
       }).finally(() => setLoading(false))
-      .catch(error => {
-        setError(true)
-      });
+      ;
   };
 
   //filtre
@@ -177,36 +142,66 @@ console.log(dataUser)
 
   useEffect(() => {
     const fetchData = async () => {
-      await MyRequest('products', 'GET', {}, {'Content-Type': 'application/json'})
-        .then((response) => {
-          setOriginalData(response.data);
-          setData(response.data)
-        });
+      try {
+        setLoading(true);
+        const response = await MyRequest('products', 'GET', {}, { 'Content-Type': 'application/json' });
+        setData(response.data);
+        setLoading(false);
+        setData(response.data)
+
+      } catch (error) {
+        setError(true);
+        setLoading(false);
+      }
     };
     fetchData();
   }, [router.query]);
 
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const columns = [
 
     {
       flex: 0.2,
-      minWidth: 250,
-      field: 'picture',
-      headerName: t('picture'),
+      maxWidth: 50,
+      field: 'id',
+      headerName: t('id'),
       renderCell: ({ row }) => {
         return (
-          <Image
-            src={'http://127.0.0.1:8000' + "/storage/product/" + row.picture}
-            width={70} height={70}
-            alt={"image"}/>
+          <Typography noWrap variant='body2'>
+            {row.id}
+          </Typography>
         );
       },
     },
     {
       flex: 0.2,
-      minWidth: 250,
+      maxWidth: 250,
+      field: 'picture',
+      headerName: t('picture'),
+      renderCell: ({ row }) => {
+        const handleView = (user) => {
+          // Set the user data to be edited
+          setDataUser(user);
+          setOpenview(true);
+        };
+        return (
+          <div
+            style={{ cursor: 'pointer' }}
+          >
+            <Image
+              src={'http://127.0.0.1:8000/storage/product/' + row.picture}
+              width={100}
+              height={100}
+              alt="image"
+              onDoubleClick={() => handleView(row)}
+            />
+          </div>
+        );
+      },
+    },
+    {
+      flex: 0.2,
+      maxWidth: 250,
       field: 'name',
       headerName: t('name'),
       renderCell: ({ row }) => {
@@ -218,24 +213,13 @@ console.log(dataUser)
       },
     },
 
-    {
-      flex: 0.2,
-      minWidth: 250,
-      field: 'categorie',
-      headerName: t('categorie'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.categorie.name}
-          </Typography>
-        );
-      },
-    },
+
+
 
 
     {
       flex: 0.2,
-      minWidth: 250,
+      minWidth: 100,
       field: 'price',
       headerName: t('price'),
       renderCell: ({ row }) => {
@@ -248,20 +232,7 @@ console.log(dataUser)
     },
     {
       flex: 0.2,
-      minWidth: 250,
-      field: 'Supplier',
-      headerName: t('suplier'),
-      renderCell: ({ row }) => {
-        return (
-          <Typography noWrap variant='body2'>
-            {row.suplier.name}
-          </Typography>
-        );
-      },
-    },
-    {
-      flex: 0.2,
-      minWidth: 250,
+      minWidth: 150,
       field: 'quantity sell',
       headerName: t('quantity sell'),
       renderCell: ({ row }) => {
@@ -275,8 +246,23 @@ console.log(dataUser)
     {
       flex: 0.15,
       field: 'quantity',
-      minWidth: 150,
+      minWidth: 100,
       headerName: t('quantity'),
+      renderCell: ({ row }) => {
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: red[500] } }}>
+            <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+              {t(row.stock)}
+            </Typography>
+          </Box>
+        );
+      },
+    },
+    {
+      flex: 0.15,
+      field: 'alert',
+      minWidth: 100,
+      headerName: t('alert'),
       renderCell: ({ row }) => {
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: red[500] } }}>
@@ -294,8 +280,15 @@ console.log(dataUser)
       field: 'actions',
       headerName: t('action'),
       renderCell: ({ row }) => {
+        const [anchorEl, setAnchorEl] = useState(false);
 
         const rowOptionsOpen = Boolean(anchorEl);
+        const handleEditPicture= (user) => {
+          // Set the user data to be edited
+          setDataUser(user);
+          setOpeneditPiture(true);
+          handleRowOptionsClose();
+        };
 
         const handleRowOptionsClick = (event) => {
           setAnchorEl(event.currentTarget);
@@ -305,14 +298,14 @@ console.log(dataUser)
           setAnchorEl(null);
         };
 
-        const handleEdit= (user) => {
+        const handleEdit = (user) => {
           // Set the user data to be edited
           setDataUser(user);
           setOpenedit(true);
           handleRowOptionsClose();
         };
 
-const handleView = (user) => {
+        const handleView = (user) => {
           // Set the user data to be edited
           setDataUser(user);
           setOpenview(true);
@@ -322,7 +315,7 @@ const handleView = (user) => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('products/'+row.id, 'DELETE', {'data':data}, {'Content-Type': 'application/json'})
+          MyRequest('products/'+row.id, 'DELETE', {'data':data,'user':auth.user.id}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 200) {
                 await refreshData()
@@ -332,9 +325,9 @@ const handleView = (user) => {
                 setError(true)
               }
             }).finally(() =>{
-        setLoading(false)
+            setLoading(false)
 
-            })
+          })
             .catch(error => {
               setError(true)
             });
@@ -373,6 +366,11 @@ const handleView = (user) => {
                 <Icon icon='mdi:pencil-outline' fontSize={20} />
                 Edit
               </MenuItem>
+              <MenuItem sx={{ '& svg': { mr: 2 } }} onClick={() => handleEditPicture(row)}>
+                <Icon icon='mdi:pencil-outline' fontSize={20} />
+                Edit picture
+              </MenuItem>
+
               <MenuItem onClick={()=>Submitremove()} sx={{ '& svg': { mr: 2 } }}>
                 <Icon icon='mdi:delete-outline' fontSize={20} />
                 Delete
@@ -469,8 +467,9 @@ const handleView = (user) => {
               </Box>
             </Box>
             {/*liste*/}
+            <div style={{ height: 500, width: '100%' }}>
             <DataGrid
-              autoHeight
+              rowHeight={100}
               rows={data}
               columns={columns}
               pageSize={pageSize}
@@ -484,6 +483,7 @@ const handleView = (user) => {
               sx={{'& .MuiDataGrid-columnHeaders': {borderRadius: 1}}}
               onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             />
+            </div>
 
           </Card>
         </Grid>
@@ -491,6 +491,7 @@ const handleView = (user) => {
         <Add open={openadd} setOpen={setOpenadd}/>
         {/* Edit user modal */}
         <EditModal open={openedit} setOpen={setOpenedit} data={dataUser} />
+        <EditPicture open={openeditPiture} setOpen={setOpeneditPiture} data={dataUser} />
          {/* View user modal */}
         <ViewModal open={openview} setOpen={setOpenview} data={dataUser} />
 

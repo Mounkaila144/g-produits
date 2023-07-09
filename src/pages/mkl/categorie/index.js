@@ -105,7 +105,7 @@ const Categorie = () => {
     var data=Object.values(selected);
 
     setLoading(true)
-    MyRequest('categories/1', 'DELETE', {'data':data,'user':auth.id}, {'Content-Type': 'application/json'})
+    MyRequest('categories/1', 'DELETE', {'data':data,'user':auth.user.id}, {'Content-Type': 'application/json'})
       .then(async (response) => {
         if (response.status === 200) {
           setSuccess(true)
@@ -226,7 +226,7 @@ const handleView = (categorie) => {
           var data=Object.values([row.id]);
 
           setLoading(true)
-          MyRequest('categories/'+row.id, 'DELETE', {'data':data,'user':auth.id}, {'Content-Type': 'application/json'})
+          MyRequest('categories/'+row.id, 'DELETE', {'data':data,'user':auth.user.id}, {'Content-Type': 'application/json'})
             .then(async (response) => {
               if (response.status === 200) {
                 await refreshData()

@@ -324,7 +324,7 @@ const Add = ({open,setOpen}) => {
                       </Alert>
                     )}
                     {selected.length > 0 && <Fab  aria-label='delect selelcted' color='error' size='medium'
-
+                                                
                     >
                       <Icon icon='ic:baseline-delete' fontSize={30} />
                     </Fab>}
